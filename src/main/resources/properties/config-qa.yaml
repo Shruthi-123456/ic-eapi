@@ -1,0 +1,15 @@
+#database configuration
+db:
+ host: "![jEO3ThIXruLxmr35NsM0uA==]"
+ port: "![HrcRz8u2aqCz3QXIMMwdRw==]"
+ user: "![Lm7UvnSLjs5SRuqGTlQaBEvc9PN/gQczJBYTcsxQPbQ=]"
+ password: "![MkjFU0tUQghm1ScR1rYBZw==]"
+ database: "![Lm7UvnSLjs5SRuqGTlQaBEvc9PN/gQczJBYTcsxQPbQ=]"
+
+
+#salesforce configuration
+
+sfc:
+ username: "![w8iTb643LXMztvHZXUy+gSaDcUXi2YGWgJuE15XAVJ8=]"
+ password: "![v0/g+TJdT19qduT3bn/6XriQecKmb2NzinjYvM/mEvQ=]"
+ securitytoken: "![mQCELzHtiCNpdcRl/TQXCt5p/wRHsaVAoL+WOk9V8rY=]"

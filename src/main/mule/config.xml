@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="ee19f650-6cc0-416d-9024-00086a08dfde" >
+		<salesforce:basic-connection username="${secure::sfc.username}" password="${secure::sfc.password}" securityToken="${secure::sfc.securitytoken}" />
+	</salesforce:sfdc-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="df1824fb-bf3c-4a0b-9cdc-1bebde341765" file="properties\config-qa.yaml" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="e2dbcc20-a367-4523-8f12-29605869b584" file="properties\config-qa.yaml" key="asdfghjkloiuytre" />
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="0995c842-79ef-45a1-ad50-b5cb01439dd3" >
+		<db:my-sql-connection host="${secure::db.host}" port="${secure::db.port}" user="${secure::db.user}" password="${secure::db.password}" database="${secure::db.database}"/>
+	</db:config>
+	<configuration doc:name="Configuration" doc:id="bdfe60c7-4636-443e-9f18-cded73055c9a" defaultErrorHandler-ref="Error_Handler" />
+</mule>

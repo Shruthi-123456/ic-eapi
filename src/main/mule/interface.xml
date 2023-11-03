@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<os:object-store name="Object_store" doc:name="Object store" doc:id="23fb9986-d055-4a64-aaaa-616dbc594bc3" />
+	<flow name="NewLeadsTriggerFlow" doc:id="6b7520f9-0520-4c5c-a6d1-7841a6a9ac7f" >
+		<salesforce:new-object-listener objectType="Lead" doc:name="On New Object" doc:id="02aa1be4-6b35-4285-adef-46f2c9903373" config-ref="Salesforce_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:new-object-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="bd2222fd-d799-44d6-a8b1-a67ce081a1ff" message="#[payload]"/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="UpdateLeadTriggerFlow" doc:id="8e91ee73-6efb-41db-b7ab-8257e8b1cb49" >
+		<salesforce:modified-object-listener objectType="Lead" doc:name="On Modified Object" doc:id="468d2dda-3f90-4e6c-b0a4-e9988d22fe8d" config-ref="Salesforce_Config">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</salesforce:modified-object-listener>
+		<logger level="INFO" doc:name="Logger" doc:id="5d387068-1724-46d4-a1cb-9044c28d2280" message="#[payload]"/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="CreateDBLeadsTriggerFlow" doc:id="80c4056d-8a9b-4b52-be10-870ecc1dda34" >
+		<db:listener table="leads" doc:name="On Table Row" doc:id="075632c2-58c9-4d96-ab53-e1b19b09f510" config-ref="Database_Config" watermarkColumn="Id" idColumn="Id">
+			<scheduling-strategy >
+				<fixed-frequency />
+			</scheduling-strategy>
+		</db:listener>
+		<logger level="INFO" doc:name="Logger" doc:id="8c893eb9-efc3-45ef-880f-9895a1b451a7" message='#[output application/json ---payload]'/>
+		<error-handler ref="Error_Handler" />
+	</flow>
+	<flow name="UpdateDBLeadsTriggerFlow" doc:id="bf1db2a6-994b-4706-9a7c-f30f0f8d4e8f" >
+		<scheduler doc:name="Scheduler" doc:id="1c478840-9bb3-4c77-b3ee-b36ea70d7337" >
+			<scheduling-strategy >
+				<fixed-frequency frequency="2" timeUnit="MINUTES"/>
+			</scheduling-strategy>
+		</scheduler>
+		<os:retrieve doc:name="Retrieve" doc:id="a9c1e10a-6c57-4fcb-bf4a-f01f496b41ba" key="lastUpdatedDate" target="lastUpdatedDate" objectStore="Object_store">
+			<os:default-value ><![CDATA[0000-00-00 00:00:00]]></os:default-value>
+		</os:retrieve>
+		<db:select doc:name="Select" doc:id="1d49bf59-e5a0-4b04-a7b1-f38137836772" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from freedb_ENUGUSHRUTHI.leads where UpdatedDate > :lastUpdatedDate;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	lastUpdatedDate: vars.lastUpdatedDate
+}]]]></db:input-parameters>
+		</db:select>
+		<choice doc:name="Choice" doc:id="34ab5ad0-c4c7-4e3c-aa02-02c5b72a61c2" >
+			<when expression="#[not isEmpty(payload)]">
+				<os:store doc:name="Store" doc:id="46528c5a-239d-4e3f-aa2a-4ce4777dd2c2" key="lastUpdatedDate" objectStore="Object_store">
+					<os:value ><![CDATA[#[max (payload.*UpdatedDate)]]]></os:value>
+				</os:store>
+				<logger level="INFO" doc:name="Logger" doc:id="eb610650-73f5-40c1-99ad-a849a459bb62" message="#[output application/json ---payload]"/>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Logger" doc:id="095ebc8c-eed7-4fa1-8a42-85fd9fcb0235" message="no updated Records"/>
+			</otherwise>
+		</choice>
+		<error-handler ref="Error_Handler" />
+	</flow>
+</mule>
